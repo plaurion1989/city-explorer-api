@@ -4,11 +4,11 @@ require ('dotenv').config();
 const cors = require ('cors');
 const PORT = process.env.PORT;
 app.use(cors());
-
-app.get('/', (req,res) => {
-  let location = req.query.location;
-  res.send(location);
-});
+const weatherData = require('./data/weather.json');
+// app.get('/weather', (req,res) => {
+//   let getWeather = req.query.
+//   res.send(weatherData);
+// });
 
 
 
@@ -17,4 +17,4 @@ app.get('/', (req,res) => {
 app.get('/*', (req,res) => {
   res.status(404).send('path not found');
 });
-app.listen(PORT, () => {console.log(`listening on ${PORT}`)});
+app.listen(PORT, () => {console.log(`listening on port ${PORT}`);});
