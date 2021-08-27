@@ -12,21 +12,28 @@ class Movie {
   }
 }
 
-async function movies(req, res) {
-  let searchQuery = req.query.searchQuery;
-  console.log(cashe);
-  let movieData = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${searchQuery}`);
-  //error message
-  if (movieData === undefined) {
-    res.status(400).send('location not found');
+function movies(searchQuery) {
+  const key = 'movies-' + searchQuery;
+  const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${searchQuery}`;
+  if (cashe[key] && (Date.now() - cashe[key].timestamp < 40000)) {
+    console.log('Cashe hit');
   } else {
-    // weatherData.data.data is path to object
-    console.log(movieData.data);
-    let movies = movieData.data.results.map(movie => {
-      return new Movie(movie)
-    });
-    res.send(movies);
+    console.log('Cashe hit');
+    cashe[key] = {};
+    cashe[key].timestamp = Date.now();
+    cashe[key].data = axios.get(url).then(response => parseMovies(response.body));
   }
-};
+}
+
+function parseMovies(movieData){
+  try{
+    let movies = movieData.results.map(movie => {
+      return new Movie(movie);
+    });
+    return Promise.resolve(movies);
+  } catch(e) {
+    return Promise.reject(e);
+  }
+}
 
 module.exports = movies;
